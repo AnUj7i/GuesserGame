@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Random Number Games</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        #title{
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .game-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .color-box {
+            width: 150px;
+            height: 150px;
+            margin: 10px auto;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        input {
+            padding: 8px;
+            margin: 5px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .score {
+            font-size: 18px;
+            font-weight: bold;
+            color: #28a745;
+            margin: 10px 0;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .hint {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .dice {
+            font-size: 50px;
+            margin: 20px 0;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="title">Random Number Games </h1>
+
+    <!-- Number Guessing Game -->
+    <div class="container">
+        <h2>1. Number Guessing Game</h2>
+        <div class="game-section">
+            <p>Guess a number between <span id="rangeMin">1</span> and <span id="rangeMax">100</span></p>
+            <input type="number" id="guessInput" placeholder="Enter your guess">
+            <button onclick="makeGuess()">Guess</button>
+            <button onclick="startNewGame()">New Game</button>
+            <div id="guessMessage" class="message"></div>
+            <div class="hint" id="guessHint"></div>
+            <div class="score">Attempts: <span id="attempts">0</span></div>
+        </div>
+    </div>
+
+    <!-- Random Color Generator -->
+    <div class="container">
+        <h2>2. Random Color Generator</h2>
+        <div class="game-section">
+            <div id="colorBox" class="color-box"></div>
+            <button onclick="generateRandomColor()">Generate Color</button>
+            <div id="colorCode"></div>
+        </div>
+    </div>
+
+    <!-- Dice Roller -->
+    <div class="container">
+        <h2>3. Dice Roller</h2>
+        <div class="game-section">
+            <div class="dice" id="diceDisplay">🎲</div>
+            <button onclick="rollDice()">Roll Dice</button>
+            <div class="stats">
+                <div class="stat-box">
+                    Rolls: <span id="totalRolls">0</span>
+                </div>
+                <div class="stat-box">
+                    Average: <span id="averageRoll">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Number Guessing Game
+        let targetNumber;
+        let attempts;
+        let maxNumber = 100;
+        let minNumber = 1;
+
+        function startNewGame() {
+            targetNumber = Math.floor(Math.random() * (maxNumber - minNumber + 1)) + minNumber;
+            attempts = 0;
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('guessMessage').textContent = '';
+            document.getElementById('guessHint').textContent = '';
+            document.getElementById('guessInput').value = '';
+            document.getElementById('rangeMin').textContent = minNumber;
+            document.getElementById('rangeMax').textContent = maxNumber;
+        }
+
+        function makeGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            attempts++;
+            document.getElementById('attempts').textContent = attempts;
+
+            let message = document.getElementById('guessMessage');
+            let hint = document.getElementById('guessHint');
+
+            if (isNaN(guess) || guess < minNumber || guess > maxNumber) {
+                message.className = 'message error';
+                message.textContent = `Please enter a valid number between ${minNumber} and ${maxNumber}`;
+                return;
+            }
+
+            if (guess === targetNumber) {
+                message.className = 'message success';
+                message.textContent = `Congratulations! You found the number in ${attempts} attempts!`;
+                hint.textContent = '';
+            } else {
+                message.className = 'message error';
+                message.textContent = 'Try again!';
+                hint.textContent = guess > targetNumber ? 'Too high!' : 'Too low!';
+            }
+        }
+
+        // Random Color Generator
+        function generateRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            document.getElementById('colorBox').style.backgroundColor = color;
+            document.getElementById('colorCode').textContent = color;
+        }
+
+        // Dice Roller
+        let rollHistory = [];
+
+        function rollDice() {
+            const result = Math.floor(Math.random() * 6) + 1;
+            rollHistory.push(result);
+            
+            // Update display
+            document.getElementById('diceDisplay').textContent = getDiceFace(result);
+            document.getElementById('totalRolls').textContent = rollHistory.length;
+            
+            // Calculate and update average
+            const average = rollHistory.reduce((a, b) => a + b) / rollHistory.length;
+            document.getElementById('averageRoll').textContent = average.toFixed(2);
+        }
+
+        function getDiceFace(number) {
+            const diceFaces = ['⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+            return diceFaces[number - 1];
+        }
+
+        // Initialize games
+        startNewGame();
+        generateRandomColor();
+    </script>
+</body>
+</html>
